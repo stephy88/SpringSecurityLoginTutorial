@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org">
+
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:th="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.w3.org/1999/xhtml">
+<script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+<!------ Include the above in your HEAD tag ---------->
+<body>
+<form class="form-horizontal" th:action="@{/createrole}" method="post" th:object="${role}">
+    <fieldset>
+
+        <!-- Form Name -->
+        <legend>Add User Role</legend>
+
+        <!-- Text input-->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="rolename">User Role Name</label>
+            <div class="col-md-4">
+                <input id="rolename" name="rolename" type="text" placeholder="role name" class="form-control input-md" required="">
+
+            </div>
+        </div>
+
+        <!-- Multiple Checkboxes -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="permissions">Role Permissions</label>
+            <div class="col-md-4">
+                <th:block th:each="permission : ${permissions}">
+                    <div class="checkbox">
+                        <label for="permissions-0">
+                            <input id="permission" type="checkbox" name="permissions" id="permissions-0" th:value="${permission.name}" th:text="${permission.name}">
+
+                        </label>
+                    </div>
+                </th:block>
+                <!--<div class="checkbox">
+                    <label for="permissions-0">
+                        <input type="checkbox" name="permissions" id="permissions-0" value="1">
+                        Permission one
+                    </label>
+                </div>
+                <div class="checkbox">
+                    <label for="permissions-1">
+                        <input type="checkbox" name="permissions" id="permissions-1" value="2">
+                        Permission two
+                    </label>
+                </div>-->
+            </div>
+
+        </div>
+
+        <!-- Button -->
+        <div class="form-group">
+            <label class="col-md-4 control-label" for="savebutton"></label>
+            <div class="col-md-4">
+                <button id="savebutton" name="savebutton" class="btn btn-success">Save</button>
+            </div>
+        </div>
+
+    </fieldset>
+</form>
+    <button id="buttonajax">Click</button>
+    <script>
+        $(document).ready(function() {
+      var permissions = [];
+     $("input[type='checkbox']").change(function() {
+     console.log(this);
+  var checked = $(this).val();
+    if ($(this).is(':checked')) {
+      var permission = {
+         "name": checked
+      }
+      permissions.push(permission);
+      console.log('Usao odjeeeeeee');
+      console.log(permissions);
+    }else{
+    permissions.splice($.inArray(checked, permissions),1);
+    }
+  });
+
+
+   $("#buttonajax").click(function() {
+   var name = $("#rolename").val();
+   console.log('Ima je ' + name);
+   console.log('Permissions je ' + JSON.stringify(permissions));
+   var data = {
+       "name": name,
+       "permissions": permissions
+   };
+
+   console.log(JSON.stringify(data));
+   $.ajax({
+        type: "POST",
+        url: '/createrole',
+        data: JSON.stringify(data),
+        dataType: 'json',
+        contentType: 'application/json',
+        success: function(data, textStatus ){
+        console.log(data);
+        },
+        error: function(textStatus, errorThrown)
+        {
+          console.log('Status is ' + textStatus);
+          console.log('Reason is ' + errorThrown);
+          alert(permissions);
+        }
+    });
+   });
+});
+
+</script>
+</body>
+
+</html>
