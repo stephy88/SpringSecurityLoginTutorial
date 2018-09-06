@@ -4,6 +4,7 @@ import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,7 +22,7 @@ public class Permission {
 
 	private String name;
 
-	@ManyToMany(mappedBy = "permissions", cascade = CascadeType.ALL)
+	@ManyToMany(mappedBy = "permissions", fetch = FetchType.LAZY)
 
 	private Set<Role> roles;
 

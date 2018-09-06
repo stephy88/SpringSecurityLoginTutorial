@@ -35,11 +35,10 @@ public class RoleServiceImpl implements RoleService{
 
 		for(PermissionDto permissionDto : permissionDtos)
 		{
-			permissions.add(new Permission(permissionDto.getName()));
+			permissions.add(permissionRepository.findPermissionByName(permissionDto.getName()));
 		}
 
 		role.setPermissions(permissions);
-		Role currentRole = role;
 		roleRepository.save(role);
 
 		return role;
