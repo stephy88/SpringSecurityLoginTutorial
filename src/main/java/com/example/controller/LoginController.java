@@ -5,6 +5,8 @@ import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.MethodParameter;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -12,13 +14,21 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.validation.ObjectError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.context.request.WebRequest;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.example.dto.RoleDto;
+import com.example.errors.ApiError;
+import com.example.exceptions.BadRequestException;
 import com.example.model.Permission;
 import com.example.model.Role;
 import com.example.model.User;
@@ -26,7 +36,10 @@ import com.example.repository.PermissionRepository;
 import com.example.service.RoleService;
 import com.example.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import javassist.tools.web.BadHttpRequest;
 
 @Controller
 public class LoginController {
@@ -90,11 +103,29 @@ public class LoginController {
 		return modelAndView;
 	}
 
+
 	@RequestMapping(value = "/createrole", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
 	@ResponseBody
-	public Role createRole(@RequestBody RoleDto roleDto)
-	{
+	public Role createRole(@RequestBody RoleDto roleDto) throws BadRequestException{
+		if(roleDto.getName() == null || roleDto.getName().isEmpty())
+		{
+			throw new BadRequestException("Dtooo je njesraaa");
+		}
+
 		return roleService.saveRole(roleDto);
+	}
+
+
+	@RequestMapping(value = "/createrol", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE)
+	@ResponseBody
+	public ResponseEntity<Role> createRole2(@RequestBody RoleDto roleDto) throws BadRequestException{
+		if(roleDto.getName() == null || roleDto.getName().isEmpty())
+		{
+			throw new BadRequestException("Name could not be null or empty");
+		}
+		Role role = roleService.saveRole(roleDto);
+
+		return new ResponseEntity<Role>(role, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "/viewroleform", method = RequestMethod.GET)
@@ -108,5 +139,24 @@ public class LoginController {
 
 		return modelAndView;
 	}
+
+
+//	@ExceptionHandler(value = BadRequestException.class)
+//	public ModelAndView handleBadRequestException(Exception e)
+//	{
+//		ModelAndView modelAndView = new ModelAndView();
+//		modelAndView.setViewName("error");
+//		return modelAndView;
+//	}
+
+
+//	@ExceptionHandler(value = BadRequestException.class)
+//	public ResponseEntity<Object> handleBadRequestException2(BadRequestException ex)
+//	{
+//		BadRequestException e = ex;
+//
+//		return new ResponseEntity<Object>(e, HttpStatus.BAD_REQUEST);
+//	}
+
 
 }
